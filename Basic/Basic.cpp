@@ -91,15 +91,30 @@ void processLine(std::string line, Program &program, EvalState &state) {
     } else if (keyword == "REM") {
     } else if (keyword == "LET") {
         Statement *stmt = parseStatement(scanner, keyword);
-        stmt->execute(state, program);
+        try {
+            stmt->execute(state, program);
+        } catch (...) {
+            delete stmt;
+            throw;
+        }
         delete stmt;
     } else if (keyword == "PRINT") {
         Statement *stmt = parseStatement(scanner, keyword);
-        stmt->execute(state, program);
+        try {
+            stmt->execute(state, program);
+        } catch (...) {
+            delete stmt;
+            throw;
+        }
         delete stmt;
     } else if (keyword == "INPUT") {
         Statement *stmt = parseStatement(scanner, keyword);
-        stmt->execute(state, program);
+        try {
+            stmt->execute(state, program);
+        } catch (...) {
+            delete stmt;
+            throw;
+        }
         delete stmt;
     } else if (keyword == "END") {
         throw std::runtime_error("END");
