@@ -140,13 +140,17 @@ public:
 
     int getNextLineNumber(int lineNumber);
 
-    //more func to add
-    //todo
+    void list();
+
+    int getLineNumberCount();
+
+    std::vector<int> getAllLineNumbers();
 
 private:
 
-    // Fill this in with whatever types and instance variables you need
-    //todo
+    std::map<int, std::string> sourceLines;
+    std::map<int, Statement*> parsedStatements;
+    std::set<int> lineNumbers;
 };
 
 #endif

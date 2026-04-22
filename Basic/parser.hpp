@@ -58,4 +58,22 @@ Expression *readT(TokenScanner &scanner);
 
 int precedence(std::string token);
 
+/*
+ * Function: comparisonPrecedence
+ * Usage: int prec = comparisonPrecedence(token);
+ * ------------------------------------
+ * Returns the precedence of comparison operators (=, <, >).
+ */
+
+int comparisonPrecedence(std::string token);
+
+/*
+ * Function: readEWithoutComparison
+ * Usage: Expression *exp = readEWithoutComparison(scanner);
+ * ------------------------------------------------------------
+ * Returns the next expression from the scanner without consuming comparison operators.
+ */
+
+Expression *readEWithoutComparison(TokenScanner &scanner, int prec = 0);
+
 #endif

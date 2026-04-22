@@ -85,4 +85,66 @@ public:
  * specify its own destructor method to free that memory.
  */
 
+class RemStatement : public Statement {
+public:
+    RemStatement() = default;
+    ~RemStatement() override = default;
+    void execute(EvalState &state, Program &program) override;
+};
+
+class LetStatement : public Statement {
+public:
+    explicit LetStatement(Expression *exp);
+    ~LetStatement() override;
+    void execute(EvalState &state, Program &program) override;
+private:
+    Expression *exp;
+};
+
+class PrintStatement : public Statement {
+public:
+    explicit PrintStatement(Expression *exp);
+    ~PrintStatement() override;
+    void execute(EvalState &state, Program &program) override;
+private:
+    Expression *exp;
+};
+
+class InputStatement : public Statement {
+public:
+    explicit InputStatement(std::string var);
+    ~InputStatement() override = default;
+    void execute(EvalState &state, Program &program) override;
+private:
+    std::string var;
+};
+
+class EndStatement : public Statement {
+public:
+    EndStatement() = default;
+    ~EndStatement() override = default;
+    void execute(EvalState &state, Program &program) override;
+};
+
+class GotoStatement : public Statement {
+public:
+    explicit GotoStatement(int lineNumber);
+    ~GotoStatement() override = default;
+    void execute(EvalState &state, Program &program) override;
+private:
+    int lineNumber;
+};
+
+class IfStatement : public Statement {
+public:
+    IfStatement(Expression *lhs, std::string op, Expression *rhs, int lineNumber);
+    ~IfStatement() override;
+    void execute(EvalState &state, Program &program) override;
+private:
+    Expression *lhs;
+    std::string op;
+    Expression *rhs;
+    int lineNumber;
+};
+
 #endif

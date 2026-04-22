@@ -16,6 +16,7 @@
 Expression *parseExp(TokenScanner &scanner) {
     Expression *exp = readE(scanner);
     if (scanner.hasMoreTokens()) {
+        delete exp;
         error("parseExp: Found extra token: " + scanner.nextToken());
     }
     return exp;
@@ -39,8 +40,13 @@ Expression *readE(TokenScanner &scanner, int prec) {
         token = scanner.nextToken();
         int newPrec = precedence(token);
         if (newPrec <= prec) break;
-        Expression *rhs = readE(scanner, newPrec);
-        exp = new CompoundExp(token, exp, rhs);
+        try {
+            Expression *rhs = readE(scanner, newPrec);
+            exp = new CompoundExp(token, exp, rhs);
+        } catch (...) {
+            delete exp;
+            throw;
+        }
     }
     scanner.saveToken(token);
     return exp;
@@ -58,10 +64,14 @@ Expression *readT(TokenScanner &scanner) {
     TokenType type = scanner.getTokenType(token);
     if (type == WORD) return new IdentifierExp(token);
     if (type == NUMBER) return new ConstantExp(stringToInteger(token));
-    if (token == "-") return new CompoundExp(token, new ConstantExp(0), readE(scanner));
+    if (token == "-") {
+        Expression *rhs = readE(scanner);
+        return new CompoundExp(token, new ConstantExp(0), rhs);
+    }
     if (token != "(") error("Illegal term in expression");
     Expression *exp = readE(scanner);
     if (scanner.nextToken() != ")") {
+        delete exp;
         error("Unbalanced parentheses in expression");
     }
     return exp;
@@ -79,4 +89,28 @@ int precedence(std::string token) {
     if (token == "+" || token == "-") return 2;
     if (token == "*" || token == "/") return 3;
     return 0;
+}
+
+int comparisonPrecedence(std::string token) {
+    if (token == "=" || token == "<" || token == ">") return 1;
+    return 0;
+}
+
+Expression *readEWithoutComparison(TokenScanner &scanner, int prec) {
+    Expression *exp = readT(scanner);
+    std::string token;
+    while (true) {
+        token = scanner.nextToken();
+        int newPrec = precedence(token);
+        if (newPrec <= prec || comparisonPrecedence(token) > 0) break;
+        try {
+            Expression *rhs = readEWithoutComparison(scanner, newPrec);
+            exp = new CompoundExp(token, exp, rhs);
+        } catch (...) {
+            delete exp;
+            throw;
+        }
+    }
+    scanner.saveToken(token);
+    return exp;
 }
